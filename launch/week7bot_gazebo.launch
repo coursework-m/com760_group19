@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <!-- Include the launch file to start Gazebo with your .world file -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <!-- Set the arguments to load your specific .world file -->
+        <arg name="world_name" value="$(find com760_group19)/world/world02.world"/>
+        <!-- Set other necessary arguments -->
+        <arg name="use_sim_time" value="true"/>
+        <arg name="debug" default="false"/>
+        <arg name="gui" default="true"/>
+        <arg name="headless" default="false"/>
+        <arg name="paused" default="false"/>
+    </include>
+<!--use a small script called spawn_model to make a servicecall request to the gazebo_ros ROS node-->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-file $(find com760_group19)/urdf/week7bot.urdf -urdf -model week7bot -x 7.463631 -y -7.545944 -z 0.1 -Y -2.873466"/>
+
+  <node pkg="com760_group19" type="qlearning.py" name="q_learning" output="screen" /> 
+
+</launch>

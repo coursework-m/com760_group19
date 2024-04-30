@@ -3,7 +3,7 @@
   <!-- Include the launch file to start Gazebo with your .world file -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <!-- Set the arguments to load your specific .world file -->
-        <arg name="world_name" value="$(find com760_group19)/world/world02.world"/>
+        <arg name="world_name" value="$(find com760_group19)/world/world04.world"/>
         <!-- Set other necessary arguments -->
         <arg name="use_sim_time" value="true"/>
         <arg name="debug" default="false"/>

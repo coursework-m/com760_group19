@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+     <arg name="robot" default="machines"/>
+     <arg name="world" default="world02" />
+     <!--Resuming the logic in gazebo_ros package empty_world.launch-->
+     <include file="$(find gazebo_ros)/launch/empty_world.launch">
+          <arg name="world_name" value="$(find com760_group19)/world/$(arg world).world"/>
+          <arg name="use_sim_time" value="true"/>
+          <arg name="debug" default="false"/>
+          <arg name="gui" default="true"/>
+          <arg name="headless" default="false"/>
+          <arg name="paused" default="false"/>
+          <!-- <env name="GAZEBO_MODEL_PATH" value="$(find ~/.gazebo/models:$(optenv GAZEBO_MODEL_PATH)"/> -->
+     </include>
+     <arg name="urdf" default="group19Bot" />
+     <arg name="model" default="group19Bot" />
+     <arg name="x" default="0"/>
+     <arg name="y" default="0"/>
+     <arg name="z" default="0.5"/>	
+     <!--use a small script called spawn_model to make a service call request to the gazebo_ros ROS node-->
+     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-file $(find com760_group19)/urdf/$(arg urdf).urdf -urdf -model $(arg model) -x $(arg x) -y $(arg y) -z $(arg z)" />
+</launch>
+

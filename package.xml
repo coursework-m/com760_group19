@@ -8,6 +8,9 @@
   <!-- Add exec_depend for each Python script -->
   <exec_depend>go_to_point.py</exec_depend>
   <exec_depend>qlearning.py</exec_depend>
+  <exec_depend>path_planning_server.py</exec_depend>
+  <exec_depend>gridviz.py</exec_depend>
+  <exec_depend>q_learning.py</exec_depend>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

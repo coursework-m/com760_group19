@@ -10,6 +10,7 @@ import numpy as np
 from tf.transformations import euler_from_quaternion
 import traceback
 import pickle
+import pandas as pd
 
 # Define maximum distance and angle for object X and location Y detection
 MAX_X_DISTANCE = 5
@@ -21,7 +22,7 @@ NUM_Y_BINS = 20
 state_dim = (NUM_X_BINS, NUM_Y_BINS)
 
 # Define discrete actions
-NUM_ACTIONS = 8
+NUM_ACTIONS = 7
 
 
 # Global variables to store model states and laser scan data
@@ -30,7 +31,7 @@ laser_scan_msg = None
 
 
 class QLearningAgent:
-    def __init__(self, state_dim, action_dim, epsilon=0.9, alpha=0.4, gamma=0.9):
+    def __init__(self, state_dim, action_dim, epsilon=0.8, alpha=0.8, gamma=0.9):
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.alpha = alpha  # Learning rate
@@ -42,6 +43,8 @@ class QLearningAgent:
         self.state_visit_counts = {}  # Dictionary to store visit counts for each state
 
     def choose_action(self, state):
+        rospy.loginfo("EPSILON")
+        rospy.loginfo(self.epsilon)
         if np.random.rand() < self.epsilon or state not in self.Q:
             # Explore: return a random action
             action = np.random.choice(self.action_space)
@@ -131,7 +134,7 @@ def calculate_reward(robot_pose, prev_state):
     return reward
 
 
-def differentiate_objects(laser_data, angles, distance_threshold=1, width_threshold=0.5, height_threshold=0.5):
+def differentiate_objects(laser_data, angles, distance_threshold=1, width_threshold=1, height_threshold=0.5):
     objects = {}
 
     # Iterate through laser data
@@ -206,7 +209,7 @@ def reset_objects():
             model_state_msg.pose.position.y = original_pose[1]
             model_state_msg.pose.position.z = original_pose[2]
 
-            # Call the service to set the model state
+            # Call the service to set the model     
             response = set_model_state(model_state_msg)
             
             rospy.loginfo("Resetting position of {} to ({}, {}, {})".format(
@@ -239,34 +242,48 @@ def get_laser_scan_data(laser_msg):
 
 def perform_action(action):
     control_msg = Twist()
-    angular_velocity_scale = 0.5  # Scale factor for angular velocity
-    
-    if action >= 4:  # If action is forward motion
-        if action == 4:  # Forward motion with reduced linear velocity
-            control_msg.linear.x = 4.0  # Reduced forward velocity
-        elif action == 5:  # Forward motion with default linear velocity
-            control_msg.linear.x = 8.0  # Default forward velocity
-        elif action == 6:  # Forward motion with default linear velocity
+    angular_velocity_scale = 0.7  # Scale factor for angular velocity
+    if action > 1:  # If action is forward motion
+        if action == 2:  # Forward motion with reduced linear velocity
+            control_msg.linear.x = 4.0  # Reduced forward 
+            control_pub.publish(control_msg)
+
+            rospy.sleep(0.5)
+
+        elif action == 3:  # Forward motion with default linear velocity
+            control_msg.linear.x = 8.0  # Default forward
+            control_pub.publish(control_msg)
+
+            rospy.sleep(1)
+
+
+        elif action == 4:  # Forward motion with default linear velocity
             control_msg.linear.x = 10.0  # Default forward velocity
-        elif action == 7:  # Forward motion with default linear velocity
+            control_pub.publish(control_msg)
+            rospy.sleep(1.5)
+
+        elif action == 5:  # Forward motion with default linear velocity
             control_msg.linear.x = 12.0  # Default forward velocity
+            control_pub.publish(control_msg)
+            rospy.sleep(2)
+
         else:
             rospy.logwarn("Invalid action: %d", action)
     else:  # If action is angular motion
-        if action % 2 == 0:  # For actions 2 and 3, turn right
-            angle = np.pi / 4  # 45 degrees in radians
-            if action == 2:
-                angle *= 2  # Double the angle for action 2 to make it 90 degrees
-            control_msg.angular.z = angle * angular_velocity_scale  # Set angular velocity for turning right
-            control_pub.publish(control_msg)
-            rospy.sleep(0.1)
-        else:  # For actions 0 and 1, turn left
+        if action == 0:  # Turn left 90 degrees
             angle = np.pi / 2  # 90 degrees in radians
-            if action == 1:
-                angle /= 2  # Halve the angle for action 1 to make it 45 degrees
             control_msg.angular.z = -angle * angular_velocity_scale  # Set angular velocity for turning left
             control_pub.publish(control_msg)
-            rospy.sleep(0.1)
+            rospy.loginfo("Turn Left Normal")
+            rospy.sleep(1.5)
+        elif action == 1:  # Turn right 90 degrees
+            angle = np.pi / 2  # 90 degrees in radians
+            control_msg.angular.z = angle * angular_velocity_scale  # Set angular velocity for turning right
+            control_pub.publish(control_msg)
+            rospy.loginfo("Turn right Normal")
+            rospy.sleep(1.5)
+        else:
+            rospy.logwarn("Invalid action: %d", action)
     
     return control_msg
 
@@ -310,8 +327,8 @@ if __name__ == '__main__':
                     for obj_key, obj_data in detected_objects.items():
                         rospy.loginfo(obj_data['width'])
 
-                        if obj_data['width'] > 0.3:
-                            rospy.loginfo(obj_key)
+                        if obj_data['width'] > 0.1:
+                            # rospy.loginfo(obj_key)
                             avoid_wall = True
                             break  # one wide wall is enough to trigger the action
 
@@ -323,37 +340,49 @@ if __name__ == '__main__':
                         if any('object_' in obj_key for obj_key in detected_objects.keys()):
                             for obj_key, obj_data in detected_objects.items():
                                 rospy.loginfo
-                                if 'object_' in obj_key and obj_data['distance'] < 1.0 and obj_data['width'] > 0.3:
+                                if 'object_' in obj_key and obj_data['distance'] < 1 and obj_data['width'] > 0.2:
                                     rospy.loginfo("Obstacle detected")
                                     if 'right' in obj_key:
-                                    
                                         rospy.loginfo("Obstacle detected on the right side. Turning 90 degrees to the left.")
-                                        rospy.loginfo(obj_key)
-                                        rospy.loginfo(obj_data)
-                                        control_msg = Twist()
-                                        control_msg.linear.x = 0.0  # No forward velocity
-                                        control_msg.angular.z = 1.57  # Turn 90 degrees to the left
-                                        control_pub.publish(control_msg)
-                                        rospy.sleep(1.5)
+                                        # rospy.loginfo(obj_key)
+                                        # rospy.loginfo(obj_data)
+                                        if obj_data['width'] > 0.8:
+                                            control_msg = Twist()
+                                            control_msg.linear.x = 0.0  # No forward velocity
+                                            control_msg.angular.z = 0.3  # Turn 90 degrees to the left
+                                            control_pub.publish(control_msg)
+                                            rospy.sleep(1)
+                                        else:
+
+                                            control_msg = Twist()
+                                            control_msg.linear.x = 0.0  # No forward velocity
+                                            control_msg.angular.z = 0.7  # Turn 90 degrees to the left
+                                            control_pub.publish(control_msg)
+                                            rospy.sleep(1.5)
                                         break  # Exit the loop after publishing the turn command
                                     elif 'left' in obj_key: 
                                         rospy.loginfo("Obstacle detected on the left side. Turning 90 degrees to the right.")
-                                        rospy.loginfo(obj_key)
-                                        rospy.loginfo(obj_data)
-                                        control_msg = Twist()
-                                        control_msg.linear.x = 0.0  # No forward velocity
-                                        control_msg.angular.z = -1.57  # Turn 90 degrees to the right
-                                        control_pub.publish(control_msg)
-                                        rospy.sleep(1.5)
-
+                                        # rospy.loginfo(obj_key)
+                                        # rospy.loginfo(obj_data)
+                                        if obj_data['width'] > 0.8:
+                                            control_msg = Twist()
+                                            control_msg.linear.x = 0.0  # No forward velocity
+                                            control_msg.angular.z = -0.3  # Turn 90 degrees to the left
+                                            control_pub.publish(control_msg)
+                                            rospy.sleep(1)
+                                        else:
+                                            control_msg = Twist()
+                                            control_msg.linear.x = 0.0  # No forward velocity
+                                            control_msg.angular.z = -0.7  # Turn 90 degrees to the right
+                                            control_pub.publish(control_msg)
+                                            rospy.sleep(1.5)
                                         break  # Exit the loop after publishing the turn command
                         continue  # Skip the normal action selection process
+                    else:
 
-                    state = calculate_state(robot_pose)
-                    action = q_agent.choose_action(state)
-                    control_msg = perform_action(action)
-                    control_pub.publish(control_msg)
-                    rospy.sleep(0.1)
+                        state = calculate_state(robot_pose)
+                        action = q_agent.choose_action(state)
+                        control_msg = perform_action(action)
 
                     next_robot_pose = model_states_msg.pose[model_states_msg.name.index('week7bot')]
                     next_state = calculate_state(next_robot_pose)
@@ -365,28 +394,44 @@ if __name__ == '__main__':
                     rospy.loginfo(reward)
                     rospy.loginfo("Total")
                     rospy.loginfo(total_reward)
+                    rospy.loginfo("EP")
+                    rospy.loginfo(episode_count)
+
                     prev_state = state  # Update previous state for the next iteration
-                    rospy.loginfo("STATE")
-                    rospy.loginfo(state)
+                    # rospy.loginfo("STATE")
+                    # rospy.loginfo(state)
 
                     if state == (0, 19):
                         # Reset the environment
                         reset_objects()
                         # Pause for 2 seconds
                         rospy.loginfo("Resetting environment. Pausing for 2 seconds before starting the next episode...")
-                        rospy.sleep(2)
+                        rospy.sleep(4)
                         # Increment the episode count
                         episode_count += 1
                         # Reset the prev_state
                         prev_state = None
                         DONE = True
+
                         if episode_count == total_episodes:
+                            rospy.loginfo("EP/TOTAL")
+                            rospy.loginfo(episode_count)
+                            rospy.loginfo(total_episodes)
+
                             with open('final_q_table-test1.pkl', 'wb') as f:
                                 pickle.dump(q_agent.Q, f)
                             rospy.loginfo("Final Q-table saved")
+                            with open('final_q_table-test1.pkl', 'rb') as f:
+                                q_table_data = pickle.load(f)
+                            column_names = ['Action_{}'.format(i) for i in range(NUM_ACTIONS)]
+                            q_table_df = pd.DataFrame.from_dict(q_table_data, orient='index', columns=column_names)
+
+                            # Display the Q-table DataFrame
+                            print("Q-table:")
+                            print(q_table_df)
                         break
-                        
-                
+                    
+        
                 rospy.loginfo("Total reward for episode %d: %d", episode_count - 1, total_reward)
 
             except rospy.ROSInterruptException:
@@ -394,7 +439,11 @@ if __name__ == '__main__':
             except Exception as e:
                 rospy.logerr("An error occurred: %s", str(e))
                 rospy.logerr(traceback.format_exc())  # Print the stack trace
+        # Load the Q-table from file
 
+
+
+                
     except Exception as e:
         rospy.logerr("An error occurred in the main block: %s", str(e))
         rospy.logerr(traceback.format_exc())  # Print the stack trace

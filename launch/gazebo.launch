@@ -4,7 +4,7 @@
      <arg name="world" default="world02" />
      <!--Resuming the logic in gazebo_ros package empty_world.launch-->
      <include file="$(find gazebo_ros)/launch/empty_world.launch">
-          <arg name="world_name" value="$(find com760_group19)/worlds/$(arg world).world"/>
+          <arg name="world_name" value="$(find com760_group19)/world/$(arg world).world"/>
           <arg name="use_sim_time" value="true"/>
           <arg name="debug" default="false"/>
           <arg name="gui" default="true"/>

@@ -4,11 +4,9 @@
 
 # import ros stuff
 import rospy
-from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from tf import transformations
-from std_srvs.srv import SetBool
 from com760_group19.srv import Com760Group19Status, Com760Group19StatusResponse
 
 import math

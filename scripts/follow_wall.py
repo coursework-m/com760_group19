@@ -8,13 +8,14 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from tf import transformations
 from std_srvs.srv import *
+from com760_group19.srv import Com760Group19Status, Com760Group19StatusResponse
 
 import math
 
 class WallFollower():
     def __init__(self):
         rospy.init_node('Wall_follower')
-        self.srv = rospy.Service('wall_follower_switch', SetBool, self.wall_follower_switch)
+        self.srv = rospy.Service('wall_follower_switch', Com760Group19Status, self.wall_follower_switch)
         self.scan_sub = rospy.Subscriber('/group19Bot/laser/scan', LaserScan, self.scan_callback)
         self.cmd_pub = rospy.Publisher('/group19Bot/cmd_vel', Twist, queue_size=1)
         self.active = False
@@ -24,12 +25,12 @@ class WallFollower():
             1: 'turn left',
             2: 'follow the wall',
         }
-        self.res = SetBoolResponse()
+        self.res = Com760Group19StatusResponse()
         self.scan = []
         self.rate = rospy.Rate(20)
 
     def wall_follower_switch(self, req):
-        self.active = req.data
+        self.active = req.flag
         self.res.success = True
         self.res.message = 'Done!'
         return self.res

@@ -27,7 +27,7 @@ class Bugs():
         self.starting_point = Point()
         self.closest_point = Point()
         self.go_to_goal = rospy.ServiceProxy('/go_to_point_switch', Com760Group19Status)
-        self.follow_wall = rospy.ServiceProxy('/wall_follower_switch', SetBool)
+        self.follow_wall = rospy.ServiceProxy('/wall_follower_switch', Com760Group19Status)
         self.set_model_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
         self.sub_scan = rospy.Subscriber('/group19Bot/laser/scan', LaserScan, self.callback_laser)
         self.sub_odom = rospy.Subscriber('/odom', Odometry, self.callback_odom)
@@ -84,15 +84,15 @@ class Bugs():
         self.state = state
         if self.state == 0:
             resp = self.go_to_goal(True, self.set_linear_velocity(), self.set_angular_velocity())
-            resp = self.follow_wall(False)
+            resp = self.follow_wall(False, self.set_linear_velocity(), self.set_angular_velocity())
         if self.state == 1:
             resp = self.go_to_goal(False, self.set_linear_velocity(), self.set_angular_velocity())
-            resp = self.follow_wall(True)
+            resp = self.follow_wall(True, self.set_linear_velocity(), self.set_angular_velocity())
         if self.algorithm == 'bug1':
             self.description = ['Go to goal', 'Go around obsactle', 'Go to goal']
             if self.state == 2:
                 resp = self.go_to_goal(True, self.set_linear_velocity(), self.set_angular_velocity())
-                resp = self.follow_wall(False)
+                resp = self.follow_wall(False, self.set_linear_velocity(), self.set_angular_velocity())
         log = "behaviour changed to: %s" % self.description[state]
         rospy.loginfo(log)
         rospy.loginfo(resp)

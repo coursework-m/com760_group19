@@ -1,6 +1,6 @@
 bool flag # Sets true or false to switch on/off service
 float32 speed # Sends the initial proportional speed to active service
-float32 direction # Sends the initial proportial spees to active service
+float32 direction # Sends the initial proportional speeds to active service
 ---
-bool success # Returns true or false if srv was successfully activated
+bool success # Returns true if srv was successfully activated, else false
 string message # Optional log message

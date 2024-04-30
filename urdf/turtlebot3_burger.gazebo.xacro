@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="turtlebot3_burger_sim" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:arg name="laser_visual" default="true"/>
-  <xacro:arg name="imu_visual"   default="false"/>
+  <xacro:arg name="imu_visual"   default="true"/>
 
   <gazebo reference="base_link">
     <material>Gazebo/DarkGrey</material>
@@ -49,7 +49,7 @@
 
   <gazebo>
     <plugin name="turtlebot3_burger_controller" filename="libgazebo_ros_diff_drive.so">
-      <commandTopic>cmd_vel</commandTopic>
+      <commandTopic>group19Bot/cmd_vel</commandTopic>
       <odometryTopic>odom</odometryTopic>
       <odometryFrame>odom</odometryFrame>
       <odometrySource>world</odometrySource>
@@ -59,7 +59,7 @@
       <publishTf>true</publishTf>
       <publishWheelJointState>true</publishWheelJointState>
       <legacyMode>false</legacyMode>
-      <updateRate>30</updateRate>
+      <updateRate>10</updateRate>
       <leftJoint>wheel_left_joint</leftJoint>
       <rightJoint>wheel_right_joint</rightJoint>
       <wheelSeparation>0.160</wheelSeparation>
@@ -108,7 +108,7 @@
       <ray>
         <scan>
           <horizontal>
-            <samples>48</samples>
+            <samples>24</samples>
             <resolution>1</resolution>
             <min_angle>0.0</min_angle>
             <max_angle>6.28319</max_angle>
@@ -126,7 +126,7 @@
         </noise>
       </ray>
       <plugin name="gazebo_ros_lds_lfcd_controller" filename="libgazebo_ros_laser.so">
-        <topicName>scan</topicName>
+        <topicName>group19Bot/scan</topicName>
         <frameName>base_scan</frameName>
       </plugin>
     </sensor>

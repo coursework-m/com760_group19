@@ -1,2 +1,2 @@
 int64 state # 0, 1, 2 ...
-string message # Send info for each insturction
+string message # Send info for each instruction

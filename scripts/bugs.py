@@ -102,10 +102,16 @@ class Bugs():
         rospy.loginfo(log)
         rospy.loginfo(resp)
         return resp
+
+    def isclose(self, x, y, rel_tol):
+        if abs(x-y) >= rel_tol:
+            return True
+        else:
+            return False
     
     def target_reached(self):
-        if math.isclose(self.goal.x, self.position.x, rel_tol=0.3) \
-                and math.isclose(self.goal.y, self.position.y, rel_tol=0.3) \
+        if self.isclose(self.goal.x, self.position.x, rel_tol=0.3) \
+                and self.isclose(self.goal.y, self.position.y, rel_tol=0.3) \
                     and self.state_time_count > 5 and self.target_count == 0:
             self.goal_reached = True
             rospy.loginfo('Goal Reached')
@@ -113,7 +119,7 @@ class Bugs():
             self.reset_positions()
             rospy.loginfo('Position and goal reset')
             return True
-        elif math.isclose(self.goal.x, self.position.x, rel_tol=0.3) \
+        elif self.isclose(self.goal.x, self.position.x, rel_tol=0.3) \
                 and math.isclose(self.goal.y, self.position.y, rel_tol=0.3) \
                     and self.state_time_count > 5 and self.target_count == 1:
             self.home_reached = True

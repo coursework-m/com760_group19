@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
+    <arg name="log" default="true" />
     <arg name="algo" default="bug2" />
     <arg name="initial_x" default="0" />
     <arg name="initial_y" default="8" />
     <arg name="initial_z" default="0" />
-    <arg name="des_x" default="0" />
-    <arg name="des_y" default="-4" />
+    <arg name="des_x" default="4" />
+    <arg name="des_y" default="8" />
+    <param name="log" value="$(arg algo)" />
     <param name="algo" value="$(arg algo)" />
     <param name="initial_x" value="$(arg initial_x)" />
     <param name="initial_y" value="$(arg initial_y)" />

@@ -4,12 +4,12 @@
 
 # import ros stuff
 import rospy
-from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist, Point
 from nav_msgs.msg import Odometry
 from tf import transformations
-from std_srvs.srv import SetBool
 from com760_group19.srv import Com760Group19Status, Com760Group19StatusResponse
+from com760_group19.msg import Com760Group19Custom
+
 
 import math
 
@@ -19,12 +19,14 @@ class GoToPoint():
         self.srv = rospy.Service('go_to_point_switch', Com760Group19Status, self.go_to_point_switch)
         self.odom_sub = rospy.Subscriber('/odom', Odometry, self.callback_odom)
         self.cmd_pub = rospy.Publisher('/group19Bot/cmd_vel', Twist, queue_size=1)
+        self.homing_signal = rospy.Subscriber('/homing_signal', Com760Group19Custom, self.homing_callback)
         self.active = False
         # robot state variables
         self.position = Point()
         self.yaw = 0
         # robot state
         self.state = 0
+        self.initial = Point()
         # goal
         self.goal = Point()
         self.goal.x = rospy.get_param('des_pos_x')
@@ -37,9 +39,16 @@ class GoToPoint():
         self.timeout = rospy.Duration(10)
         self.rate = rospy.Rate(20)
 
+    # homing signal callback
+    def homing_callback(self, msg):
+        rospy.loginfo(msg)
+        self.state = msg.state
+        self.goal.x = msg.goal_x
+        self.goal.y = msg.goal_y
+
     # service callbacks
     def go_to_point_switch(self, req):
-        print(req)
+        rospy.loginfo(req)
         self.active = req.flag
         res = Com760Group19StatusResponse()
         res.success = True
@@ -121,13 +130,16 @@ class GoToPoint():
             if not self.active:
                 continue
             else:
-                if self.state == 0:
+                if self.state == 0: # Fix heading
                     self.fix_heading(self.goal)
-                elif self.state == 1:
+                elif self.state == 1: # Go straight
                     self.go_straight(self.goal)
-                elif self.state == 2:
-                    self.done()
+                elif self.state == 2: # Goal reached
                     rospy.loginfo('HURRAH, WE DID IT YAY!')
+                    self.done()
+                elif self.state == 3: # Go home
+                    rospy.loginfo('Making the journey home')
+                    self.fix_heading(self.goal)
                 else:
                     rospy.logerr('Unknown state!')
             

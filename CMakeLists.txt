@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(com760_group19)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -123,6 +123,33 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+catkin_install_python(PROGRAMS
+  nodes/result_graph
+  nodes/action_graph
+  nodes/moving_obstacle
+  nodes/combination_obstacle_1
+  nodes/combination_obstacle_2
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(DIRECTORY launch save_model
+	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(PROGRAMS
+  scripts/go_to_point.py
+  scripts/path_planning_server.py
+  scripts/gridviz.py
+  scripts/qlearning.py
+  scripts/algorithms/q_learning.py
+  src/dqn_env.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+
+install(DIRECTORY launch models rviz worlds 
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/com760_group19.cpp

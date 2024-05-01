@@ -1,0 +1,25 @@
+<launch>
+  <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="x_pos" default="-0.7"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find com760_group19)/world/turtlebot3_stage_4.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="10"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>  
+
+
+  <param command="$(find xacro)/xacro --inorder $(find com760_group19)/urdf/turtlebot3_$(arg model).urdf.xacro" name="robot_description"/>
+
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model group19Bot -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+
+  <node pkg="com760_group19" type="dqn.py" name="dqn" output="screen" />
+  <node pkg="com760_group19" type="combination_obstacle_1" name="combination_obstacle_1" output="screen" />
+  <node pkg="com760_group19" type="combination_obstacle_2" name="combination_obstacle_2" output="screen" />
+ 
+</launch>

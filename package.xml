@@ -3,6 +3,9 @@
   <name>com760_group19</name>
   <version>0.0.0</version>
   <description>The com760_group19 package</description>
+  <exec_depend>path_planning_server.py</exec_depend>
+  <exec_depend>gridviz.py</exec_depend>
+  <exec_depend>q_learning.py</exec_depend>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

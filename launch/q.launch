@@ -14,6 +14,6 @@
 <!--use a small script called spawn_model to make a servicecall request to the gazebo_ros ROS node-->
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-file $(find com760_group19)/urdf/week7bot.urdf -urdf -model week7bot -x 7.463631 -y -7.545944 -z 0.1 -Y -2.873466"/>
 
-  <node pkg="com760_group19" type="qlearning.py" name="q_learning" output="screen" /> 
+  <!-- <node pkg="com760_group19" type="qlearning.py" name="q_learning" output="screen" />  -->
 
 </launch>

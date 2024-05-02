@@ -73,7 +73,8 @@ class GoToPoint():
             msg.pose.pose.orientation.w)
         euler = transformations.euler_from_quaternion(quaternion)
         self.yaw = euler[2]
-        rospy.loginfo('Orientaton for position.z is [%s]' % self.yaw)
+        if self.log == 'true':
+            rospy.loginfo('Orientaton for position.z is [%s]' % self.yaw)
 
     def update_state(self, state):
         self.state = state
@@ -88,7 +89,7 @@ class GoToPoint():
         desired_yaw = math.atan2(des_pos.y - self.position.y, des_pos.x - self.position.x)
         err_yaw = self.normalize_angle(desired_yaw - self.yaw)
         
-        if self.log:
+        if self.log == 'true':
             rospy.loginfo('Desired yaw is [%s]' % desired_yaw)
             rospy.loginfo('Error yaw is [%s]' % err_yaw)
         
@@ -97,7 +98,8 @@ class GoToPoint():
         if math.fabs(err_yaw) > self.yaw_precision:
             cmd_vel.angular.z = 0.7 if err_yaw > 0 else -0.7
             self.cmd_pub.publish(cmd_vel)
-            rospy.loginfo('Published cmd_vel: [%s]' % cmd_vel)
+            if self.log == 'true':
+                rospy.loginfo('Published cmd_vel: [%s]' % cmd_vel)
         
         # When yaw error is less than yaw precision
         if math.fabs(err_yaw) <= self.yaw_precision:
@@ -114,16 +116,16 @@ class GoToPoint():
             cmd_vel.linear.x = 0.6
             cmd_vel.angular.z = 0.2 if err_yaw > 0 else -0.2
             self.cmd_pub.publish(cmd_vel)
-            if self.log:
+            if self.log == 'true':
                 rospy.loginfo('Published cmd_vel: [%s]' % cmd_vel)
         else:
-            if self.log:
+            if self.log == 'true':
                 rospy.loginfo('Position error: [%s]' % err_pos)
             self.update_state(2)
         
         # state change conditions
         if math.fabs(err_yaw) > self.yaw_precision:
-            if self.log:
+            if self.log == 'true':
                 rospy.loginfo('Yaw error: [%s]' % err_yaw)
             self.update_state(0)
 
@@ -133,7 +135,7 @@ class GoToPoint():
             cmd_vel.linear.x = 0.2
             cmd_vel.angular.z = 0
             self.cmd_pub.publish(cmd_vel)
-            if self.log:
+            if self.log == 'true':
                 rospy.loginfo('Published cmd_vel: [%s]' % cmd_vel)
         if not self.goal_reached:
             rospy.loginfo('First goal reached')

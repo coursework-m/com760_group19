@@ -33,6 +33,7 @@ class GoToPoint():
         self.goal.y = rospy.get_param('des_pos_y')
         self.goal.z = 0
         self.goal_reached = False
+        self.new_goal = False
         # parameters
         self.yaw_precision = math.pi / 90 # +/- 2 degree allowed
         self.dist_precision = 0.3
@@ -130,23 +131,32 @@ class GoToPoint():
             self.update_state(0)
 
     def done(self):
-        if self.goal_reached:
+        if self.new_goal == True:
             cmd_vel = Twist()
-            cmd_vel.linear.x = 0
+            cmd_vel.linear.x = 0.2
             cmd_vel.angular.z = 0
             self.cmd_pub.publish(cmd_vel)
             if self.log == 'true':
                 rospy.loginfo('Published cmd_vel: [%s]' % cmd_vel)
-        if not self.goal_reached:
+        if self.goal_reached == False:
             rospy.loginfo('First goal reached')
             rospy.loginfo('HURRAH, WE DID IT YAY!......Goal Rerached')
             try:
                 self.goal_reached = True
+                self.new_goal = True
                 self.goal.x = self.message.goal_x
                 self.goal.y = self.message.goal_y
                 self.update_state(self.message.state)
             except Exception as e:
                 rospy.loginfo('Something failed: [%s]' %e)
+        if self.new_goal == True:
+            cmd_vel = Twist()
+            cmd_vel.linear.x = 0.0
+            cmd_vel.angular.z = 0
+            self.cmd_pub.publish(cmd_vel)
+            if self.log == 'true':
+                rospy.loginfo('Published cmd_vel: [%s]' % cmd_vel)
+            self.active = False
     
     def run(self):
         while not rospy.is_shutdown():
